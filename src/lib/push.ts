@@ -10,16 +10,47 @@ import {
 
 let isVapidConfigured = false;
 
-function ensureVapidConfigured() {
-  if (isVapidConfigured) return true;
-  const publicKey = process.env.VAPID_PUBLIC_KEY;
-  const privateKey = process.env.VAPID_PRIVATE_KEY;
-  const subject = process.env.VAPID_SUBJECT || "mailto:admin@example.com";
+const globalForVapid = globalThis as unknown as {
+  __boutiqueVapidKeys?: { publicKey: string; privateKey: string };
+};
+
+export function getVapidKeys(): { publicKey: string; privateKey: string } {
+  let publicKey = process.env.VAPID_PUBLIC_KEY?.trim();
+  let privateKey = process.env.VAPID_PRIVATE_KEY?.trim();
 
   if (publicKey && privateKey) {
-    webpush.setVapidDetails(subject, publicKey, privateKey);
-    isVapidConfigured = true;
-    return true;
+    return { publicKey, privateKey };
+  }
+
+  if (globalForVapid.__boutiqueVapidKeys) {
+    return globalForVapid.__boutiqueVapidKeys;
+  }
+
+  // Génération automatique d'un jeu de clés VAPID en mémoire pour fonctionnement immédiat
+  const generated = webpush.generateVAPIDKeys();
+  globalForVapid.__boutiqueVapidKeys = generated;
+  return generated;
+}
+
+export function getVapidPublicKey(): string {
+  return getVapidKeys().publicKey;
+}
+
+function ensureVapidConfigured(): boolean {
+  if (isVapidConfigured) return true;
+
+  const { publicKey, privateKey } = getVapidKeys();
+  const subject = process.env.VAPID_SUBJECT?.trim() || "mailto:admin@boutique.local";
+
+  if (publicKey && privateKey) {
+    try {
+      webpush.setVapidDetails(subject, publicKey, privateKey);
+      isVapidConfigured = true;
+      return true;
+    } catch (err) {
+      console.warn("Échec configuration VAPID :", err);
+      return false;
+    }
   }
   return false;
 }

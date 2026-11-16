@@ -51,6 +51,29 @@ Ce projet est configuré pour fonctionner :
 
 ---
 
+## Étape 4 : Activer les Notifications de Commande en Temps Réel sur iPhone & Android
+
+Une fois votre site déployé sur Netlify :
+
+1. **Variables d'environnement VAPID (sur Netlify)** :
+   Ajoutez les variables suivantes dans **Site configuration → Environment variables** :
+   - `VAPID_PUBLIC_KEY` : copiez la valeur de votre `.env` ou exécutez `npm run vapid:generate`
+   - `VAPID_PRIVATE_KEY` : copiez la valeur correspondante
+   - `VAPID_SUBJECT` : `mailto:contact@votre-domaine.com`
+
+2. **Installation sur iPhone (iOS 16.4+)** :
+   - Ouvrez Safari sur votre iPhone et rendez-vous sur `https://votre-site.netlify.app/admin`.
+   - Touchez le bouton **Partager** (icône rectangle avec flèche vers le haut ⎋).
+   - Touchez **Sur l'écran d'accueil** puis **Ajouter**.
+   - Lancez l'application depuis votre écran d'accueil et touchez **Activer les notifications push** dans le bandeau jaune en haut.
+   - Vous recevrez désormais des alertes sonores et des notifications push en temps réel pour chaque nouvelle commande client, même lorsque votre écran est verrouillé !
+
+3. **Synchronisation Temps Réel Boutique <-> Admin** :
+   - Le système synchronise automatiquement en continu les nouvelles commandes vers l'espace admin (bannière instantanée + carillon sonore + mise à jour des compteurs et tableaux sans recharger).
+   - Les modifications de stock, prix et statut de commande faites dans l'administration sont répercutées en direct sur la boutique publique.
+
+---
+
 ## Optionnel : Appliquer les migrations Supabase depuis votre ordinateur
 
 Si vous souhaitez initialiser ou vérifier les tables Supabase depuis votre terminal local :

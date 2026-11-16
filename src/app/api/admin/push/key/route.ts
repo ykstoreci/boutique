@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getCurrentAdmin } from "@/lib/auth";
+import { getVapidPublicKey } from "@/lib/push";
 
 export async function GET() {
   const admin = await getCurrentAdmin();
@@ -7,7 +8,7 @@ export async function GET() {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
-  const publicKey = process.env.VAPID_PUBLIC_KEY || "";
+  const publicKey = getVapidPublicKey();
   return NextResponse.json({ publicKey });
 }
 

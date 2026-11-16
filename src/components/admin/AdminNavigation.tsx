@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export function AdminNavigation({
   unreadNotifications = 0,
@@ -17,6 +17,35 @@ export function AdminNavigation({
 }) {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [liveUnreadCount, setLiveUnreadCount] = useState(unreadNotifications);
+  const [liveNewOrdersCount, setLiveNewOrdersCount] = useState(newOrdersCount);
+
+  // Mettre à jour les compteurs en temps réel dès réception d'événements
+  useEffect(() => {
+    setLiveUnreadCount(unreadNotifications);
+  }, [unreadNotifications]);
+
+  useEffect(() => {
+    setLiveNewOrdersCount(newOrdersCount);
+  }, [newOrdersCount]);
+
+  useEffect(() => {
+    const handleSyncCounts = (event: Event) => {
+      const customEvent = event as CustomEvent<{
+        newOrdersCount: number;
+        unreadNotificationsCount: number;
+      }>;
+      if (customEvent.detail) {
+        setLiveNewOrdersCount(customEvent.detail.newOrdersCount);
+        setLiveUnreadCount(customEvent.detail.unreadNotificationsCount);
+      }
+    };
+
+    window.addEventListener("boutique:sync_counts", handleSyncCounts);
+    return () => {
+      window.removeEventListener("boutique:sync_counts", handleSyncCounts);
+    };
+  }, []);
 
   // Si on est sur la page de connexion ou d'initialisation, ne pas afficher la navigation
   if (pathname === "/admin/login" || pathname === "/admin/setup") {
@@ -30,7 +59,7 @@ export function AdminNavigation({
 
   const navItems = [
     { href: "/admin", label: "Tableau de bord", icon: "📊" },
-    { href: "/admin/orders", label: "Commandes", icon: "🛍️", badge: newOrdersCount },
+    { href: "/admin/orders", label: "Commandes", icon: "🛍️", badge: liveNewOrdersCount },
     { href: "/admin/products", label: "Produits", icon: "📦" },
     { href: "/admin/categories", label: "Catégories", icon: "🏷️" },
     { href: "/admin/customers", label: "Clients", icon: "👥" },
@@ -38,7 +67,7 @@ export function AdminNavigation({
     { href: "/admin/shipping", label: "Livraison & Expédition", icon: "🛵" },
     { href: "/admin/theme", label: "Personnalisation", icon: "🎨" },
     { href: "/admin/pages", label: "Gestion des pages", icon: "📄" },
-    { href: "/admin/notifications", label: "Notifications", icon: "🔔", badge: unreadNotifications },
+    { href: "/admin/notifications", label: "Notifications", icon: "🔔", badge: liveUnreadCount },
     { href: "/admin/settings", label: "Paramètres", icon: "⚙️" },
   ];
 
@@ -73,9 +102,9 @@ export function AdminNavigation({
             aria-label="Notifications"
           >
             <span className="text-base">🔔</span>
-            {unreadNotifications > 0 && (
-              <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-red-600 text-white text-[10px] font-bold flex items-center justify-center">
-                {unreadNotifications > 9 ? "9+" : unreadNotifications}
+            {liveUnreadCount > 0 && (
+              <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-red-600 text-white text-[10px] font-bold flex items-center justify-center animate-pulse">
+                {liveUnreadCount > 9 ? "9+" : liveUnreadCount}
               </span>
             )}
           </Link>
@@ -171,9 +200,9 @@ export function AdminNavigation({
         >
           <span className="text-lg">🛍️</span>
           <span>Commandes</span>
-          {newOrdersCount > 0 && (
-            <span className="absolute top-0 right-3 w-4 h-4 rounded-full bg-red-600 text-white text-[9px] font-bold flex items-center justify-center">
-              {newOrdersCount}
+          {liveNewOrdersCount > 0 && (
+            <span className="absolute top-0 right-3 w-4 h-4 rounded-full bg-red-600 text-white text-[9px] font-bold flex items-center justify-center animate-pulse">
+              {liveNewOrdersCount}
             </span>
           )}
         </Link>

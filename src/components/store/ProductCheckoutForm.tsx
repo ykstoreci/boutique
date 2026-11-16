@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useId } from "react";
+import { useState, useId, useEffect } from "react";
 import { formatMoney, effectivePrice } from "@/lib/money";
 import { getImageUrl } from "@/lib/images";
 import { getStoredAttribution } from "@/lib/tracking";
@@ -55,13 +55,64 @@ export function ProductCheckoutForm({
   // Clé d'idempotence unique par session de commande
   const [idempotencyKey] = useState(() => `idem-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`);
 
+  // État temps réel synchronisé avec l'administration
+  const [liveStock, setLiveStock] = useState<number>(product.stock);
+  const [livePrice, setLivePrice] = useState<number>(product.price);
+  const [livePromoPrice, setLivePromoPrice] = useState<number | null>(product.promoPrice);
+  const [liveVariants, setLiveVariants] = useState<VariantOption[]>(variants);
+  const [liveOrdersEnabled, setLiveOrdersEnabled] = useState<boolean>(ordersEnabled);
+
+  // Synchronisation en temps réel (Polling léger 6s + BroadcastChannel 0ms)
+  useEffect(() => {
+    let active = true;
+
+    async function syncProductState() {
+      try {
+        const res = await fetch(`/api/sync/store?productId=${product.id}`, { cache: "no-store" });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (active && data.success) {
+          setLiveOrdersEnabled(data.ordersEnabled);
+          if (data.product) {
+            setLiveStock(data.product.stock);
+            setLivePrice(data.product.price);
+            setLivePromoPrice(data.product.promoPrice);
+            if (data.product.variants && data.product.variants.length > 0) {
+              setLiveVariants(data.product.variants);
+            }
+          }
+        }
+      } catch {}
+    }
+
+    const interval = setInterval(syncProductState, 6000);
+
+    let channel: BroadcastChannel | null = null;
+    try {
+      if (typeof window !== "undefined" && "BroadcastChannel" in window) {
+        channel = new BroadcastChannel("boutique_realtime");
+        channel.onmessage = (event) => {
+          if (event.data?.type === "stock_updated" || event.data?.type === "store_updated") {
+            syncProductState();
+          }
+        };
+      }
+    } catch {}
+
+    return () => {
+      active = false;
+      clearInterval(interval);
+      if (channel) channel.close();
+    };
+  }, [product.id]);
+
   // Mode de réception : Livraison ou Expédition
   const initialMode = deliveryEnabled ? "delivery" : shippingEnabled ? "shipping" : "delivery";
   const [mode, setMode] = useState<"delivery" | "shipping">(initialMode);
 
   // Variante sélectionnée
   const [selectedVariantId, setSelectedVariantId] = useState<string>(
-    variants.length > 0 ? variants[0].id : ""
+    liveVariants.length > 0 ? liveVariants[0].id : ""
   );
 
   // Quantité
@@ -80,10 +131,10 @@ export function ProductCheckoutForm({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Calcul du prix unitaire selon variante ou produit
-  const selectedVariant = variants.find((v) => v.id === selectedVariantId) || null;
+  const selectedVariant = liveVariants.find((v) => v.id === selectedVariantId) || null;
   const unitPrice = selectedVariant?.price !== null && selectedVariant?.price !== undefined
     ? selectedVariant.price
-    : effectivePrice(product.price, product.promoPrice);
+    : effectivePrice(livePrice, livePromoPrice);
 
   const subtotal = unitPrice * quantity;
 
@@ -111,15 +162,15 @@ export function ProductCheckoutForm({
 
   const total = subtotal + (fee ?? 0);
 
-  // Vérification de stock disponible
-  const currentStock = selectedVariant ? selectedVariant.stock : product.stock;
+  // Vérification de stock disponible en temps réel
+  const currentStock = selectedVariant ? selectedVariant.stock : liveStock;
   const isOutOfStock = product.trackStock && currentStock <= 0;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setErrorMessage(null);
 
-    if (!ordersEnabled) {
+    if (!liveOrdersEnabled) {
       setErrorMessage("La boutique n'accepte pas de commande actuellement.");
       return;
     }
@@ -195,6 +246,30 @@ export function ProductCheckoutForm({
         setLoading(false);
         return;
       }
+
+      // Diffuser immédiatement aux onglets administrateur ouverts (0ms de latence)
+      try {
+        if (typeof window !== "undefined" && "BroadcastChannel" in window) {
+          const ch = new BroadcastChannel("boutique_realtime");
+          ch.postMessage({
+            type: "new_order",
+            order: {
+              id: data.orderId,
+              number: data.orderNumber,
+              customerName: customerName.trim(),
+              customerPhone: customerPhone.trim(),
+              total,
+              currency,
+              mode: data.mode,
+              commune: mode === "delivery" ? commune : null,
+              district: mode === "delivery" ? district : null,
+              city: mode === "shipping" ? city : null,
+              createdAt: new Date().toISOString(),
+            },
+          });
+          ch.close();
+        }
+      } catch {}
 
       // SUCCÈS : La commande est enregistrée dans la base de données.
       // Pour l'expédition : ouvrir WhatsApp automatiquement pour convenir des modalités
@@ -482,7 +557,7 @@ export function ProductCheckoutForm({
         {/* 9. BOUTON DE VALIDATION OBLIGATOIRE */}
         <button
           type="submit"
-          disabled={loading || isOutOfStock || !ordersEnabled}
+          disabled={loading || isOutOfStock || !liveOrdersEnabled}
           className="w-full py-3.5 px-4 rounded-[var(--theme-radius-btn)] font-bold text-sm tracking-wide uppercase transition-all shadow-md active:scale-98 flex items-center justify-center gap-2 bg-[var(--theme-primary)] hover:opacity-95 text-[var(--theme-primary-text)] disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? (
@@ -495,7 +570,7 @@ export function ProductCheckoutForm({
             </>
           ) : isOutOfStock ? (
             <span>Article en rupture de stock</span>
-          ) : !ordersEnabled ? (
+          ) : !liveOrdersEnabled ? (
             <span>Commandes temporairement fermées</span>
           ) : (
             <span>VALIDER</span>

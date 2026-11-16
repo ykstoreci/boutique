@@ -2,6 +2,7 @@ import { getCurrentAdmin } from "@/lib/auth";
 import { getCachedAdminBadgeCounts } from "@/lib/cache";
 import { AdminNavigation } from "@/components/admin/AdminNavigation";
 import { AdminPwaManager } from "@/components/admin/AdminPwaManager";
+import { AdminLiveAlerts } from "@/components/admin/AdminLiveAlerts";
 
 export default async function AdminLayout({
   children,
@@ -23,6 +24,7 @@ export default async function AdminLayout({
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col text-gray-900">
+      {admin && <AdminLiveAlerts />}
       <AdminNavigation
         adminName={admin?.user.name}
         unreadNotifications={unreadNotificationsCount}

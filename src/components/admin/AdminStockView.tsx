@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { formatMoney } from "@/lib/money";
+import { broadcastRealtimeEvent } from "@/lib/broadcast";
 
 interface ArrivalItem {
   id: string;
@@ -225,6 +226,7 @@ export function AdminStockView({
         return;
       }
 
+      broadcastRealtimeEvent({ type: "stock_updated" });
       window.location.reload();
     } catch {
       setFormError("Erreur réseau lors de l'enregistrement.");
@@ -245,6 +247,7 @@ export function AdminStockView({
         }),
       });
       if (res.ok) {
+        broadcastRealtimeEvent({ type: "stock_updated" });
         window.location.reload();
       }
     } finally {
@@ -260,6 +263,7 @@ export function AdminStockView({
         method: "DELETE",
       });
       if (res.ok) {
+        broadcastRealtimeEvent({ type: "stock_updated" });
         window.location.reload();
       }
     } finally {
@@ -291,6 +295,7 @@ export function AdminStockView({
 
       if (res.ok) {
         setEditingId(null);
+        broadcastRealtimeEvent({ type: "stock_updated" });
         window.location.reload();
       } else {
         alert("Erreur de mise à jour.");
