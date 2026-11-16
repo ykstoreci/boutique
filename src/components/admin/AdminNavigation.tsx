@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 
 export function AdminNavigation({
@@ -15,10 +15,31 @@ export function AdminNavigation({
   adminName?: string;
   isProduction?: boolean;
 }) {
+  const router = useRouter();
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [liveUnreadCount, setLiveUnreadCount] = useState(unreadNotifications);
   const [liveNewOrdersCount, setLiveNewOrdersCount] = useState(newOrdersCount);
+  const [targetHref, setTargetHref] = useState<string | null>(null);
+  const [isNavigating, setIsNavigating] = useState(false);
+
+  // Réinitialiser la navigation dès que la page a changé
+  useEffect(() => {
+    setIsNavigating(false);
+    setTargetHref(null);
+  }, [pathname]);
+
+  // Pré-chargement intelligent des sections clés en mémoire (1ms au clic)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      router.prefetch("/admin");
+      router.prefetch("/admin/orders");
+      router.prefetch("/admin/stock");
+      router.prefetch("/admin/products");
+      router.prefetch("/admin/theme");
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [router]);
 
   // Mettre à jour les compteurs en temps réel dès réception d'événements
   useEffect(() => {
@@ -57,6 +78,13 @@ export function AdminNavigation({
     window.location.href = isProduction ? "/admin/login" : "/admin";
   }
 
+  const handleLinkClick = (href: string) => {
+    if (href !== pathname) {
+      setTargetHref(href);
+      setIsNavigating(true);
+    }
+  };
+
   const navItems = [
     { href: "/admin", label: "Tableau de bord", icon: "📊" },
     { href: "/admin/orders", label: "Commandes", icon: "🛍️", badge: liveNewOrdersCount },
@@ -75,10 +103,21 @@ export function AdminNavigation({
 
   return (
     <>
+      {/* Micro-indicateur ultra-fin de transition instantanée */}
+      {isNavigating && (
+        <div className="fixed top-0 left-0 right-0 h-0.5 bg-black z-50 animate-pulse" />
+      )}
+
       {/* BARRE SUPÉRIEURE (Bureau & Mobile) */}
       <header className="sticky top-0 z-30 h-14 bg-white border-b border-gray-200 px-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link href="/admin" className="font-extrabold text-base tracking-tight flex items-center gap-2">
+          <Link
+            href="/admin"
+            onMouseEnter={() => router.prefetch("/admin")}
+            onTouchStart={() => router.prefetch("/admin")}
+            onClick={() => handleLinkClick("/admin")}
+            className="font-extrabold text-base tracking-tight flex items-center gap-2"
+          >
             <span className="w-7 h-7 rounded-lg bg-black text-white flex items-center justify-center text-xs font-bold">
               B
             </span>
@@ -98,6 +137,9 @@ export function AdminNavigation({
 
           <Link
             href="/admin/notifications"
+            onMouseEnter={() => router.prefetch("/admin/notifications")}
+            onTouchStart={() => router.prefetch("/admin/notifications")}
+            onClick={() => handleLinkClick("/admin/notifications")}
             className="relative p-2 rounded-lg text-gray-600 hover:bg-gray-100"
             aria-label="Notifications"
           >
@@ -132,11 +174,15 @@ export function AdminNavigation({
         </div>
         <nav className="space-y-1 flex-1">
           {navItems.map((item) => {
-            const isActive = pathname === item.href || (item.href !== "/admin" && pathname.startsWith(item.href));
+            const currentSelected = targetHref !== null ? targetHref : pathname;
+            const isActive = currentSelected === item.href || (item.href !== "/admin" && currentSelected.startsWith(item.href));
             return (
               <Link
                 key={item.href}
                 href={item.href}
+                onMouseEnter={() => router.prefetch(item.href)}
+                onTouchStart={() => router.prefetch(item.href)}
+                onClick={() => handleLinkClick(item.href)}
                 className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
                   isActive
                     ? "bg-black text-white shadow-xs"
@@ -179,50 +225,35 @@ export function AdminNavigation({
 
       {/* BARRE D'ONGLETS BAS MOBILE (Style Application iPhone / PWA) */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 flex items-center justify-around h-16 pb-safe px-2">
-        <Link
-          href="/admin"
-          className={`flex flex-col items-center justify-center flex-1 py-1 text-[11px] font-medium ${
-            pathname === "/admin" ? "text-black font-bold" : "text-gray-500"
-          }`}
-        >
-          <span className="text-lg">📊</span>
-          <span>Accueil</span>
-        </Link>
-
-        <Link
-          href="/admin/orders"
-          className={`relative flex flex-col items-center justify-center flex-1 py-1 text-[11px] font-medium ${
-            pathname.startsWith("/admin/orders") ? "text-black font-bold" : "text-gray-500"
-          }`}
-        >
-          <span className="text-lg">🛍️</span>
-          <span>Commandes</span>
-          {liveNewOrdersCount > 0 && (
-            <span className="absolute top-0 right-3 w-4 h-4 rounded-full bg-red-600 text-white text-[9px] font-bold flex items-center justify-center animate-pulse">
-              {liveNewOrdersCount}
-            </span>
-          )}
-        </Link>
-
-        <Link
-          href="/admin/products"
-          className={`flex flex-col items-center justify-center flex-1 py-1 text-[11px] font-medium ${
-            pathname.startsWith("/admin/products") ? "text-black font-bold" : "text-gray-500"
-          }`}
-        >
-          <span className="text-lg">📦</span>
-          <span>Produits</span>
-        </Link>
-
-        <Link
-          href="/admin/theme"
-          className={`flex flex-col items-center justify-center flex-1 py-1 text-[11px] font-medium ${
-            pathname.startsWith("/admin/theme") ? "text-black font-bold" : "text-gray-500"
-          }`}
-        >
-          <span className="text-lg">🎨</span>
-          <span>Thème</span>
-        </Link>
+        {[
+          { href: "/admin", label: "Accueil", icon: "📊" },
+          { href: "/admin/orders", label: "Commandes", icon: "🛍️", badge: liveNewOrdersCount },
+          { href: "/admin/products", label: "Produits", icon: "📦" },
+          { href: "/admin/theme", label: "Thème", icon: "🎨" },
+        ].map((tab) => {
+          const currentSelected = targetHref !== null ? targetHref : pathname;
+          const isActive = currentSelected === tab.href || (tab.href !== "/admin" && currentSelected.startsWith(tab.href));
+          return (
+            <Link
+              key={tab.href}
+              href={tab.href}
+              onMouseEnter={() => router.prefetch(tab.href)}
+              onTouchStart={() => router.prefetch(tab.href)}
+              onClick={() => handleLinkClick(tab.href)}
+              className={`relative flex flex-col items-center justify-center flex-1 py-1 text-[11px] font-medium transition-colors ${
+                isActive ? "text-black font-bold" : "text-gray-500"
+              }`}
+            >
+              <span className="text-lg">{tab.icon}</span>
+              <span>{tab.label}</span>
+              {tab.badge !== undefined && tab.badge > 0 && (
+                <span className="absolute top-0 right-3 w-4 h-4 rounded-full bg-red-600 text-white text-[9px] font-bold flex items-center justify-center animate-pulse">
+                  {tab.badge}
+                </span>
+              )}
+            </Link>
+          );
+        })}
 
         <button
           type="button"
@@ -254,7 +285,12 @@ export function AdminNavigation({
                 <Link
                   key={it.href}
                   href={it.href}
-                  onClick={() => setMobileMenuOpen(false)}
+                  onMouseEnter={() => router.prefetch(it.href)}
+                  onTouchStart={() => router.prefetch(it.href)}
+                  onClick={() => {
+                    handleLinkClick(it.href);
+                    setMobileMenuOpen(false);
+                  }}
                   className="p-3 rounded-xl bg-gray-50 border border-gray-100 flex items-center gap-2 font-semibold hover:bg-gray-100"
                 >
                   <span className="text-base">{it.icon}</span>
