@@ -10,8 +10,15 @@ export function AdminLoginForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [setupRequired, setSetupRequired] = useState(false);
+  const isDev = process.env.NODE_ENV !== "production";
 
   useEffect(() => {
+    // En développement local : redirection directe immédiate sans formulaire
+    if (isDev) {
+      window.location.replace("/admin");
+      return;
+    }
+
     async function checkSetup() {
       try {
         const res = await fetch("/api/admin/setup");
@@ -22,7 +29,36 @@ export function AdminLoginForm() {
       } catch {}
     }
     checkSetup();
-  }, []);
+  }, [isDev]);
+
+  if (isDev) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4 bg-gray-50">
+        <div className="w-full max-w-sm bg-white rounded-2xl shadow-xl border border-gray-100 p-8 text-center space-y-4">
+          <div className="w-12 h-12 rounded-xl bg-black text-white flex items-center justify-center mx-auto font-bold text-xl shadow-md">
+            B
+          </div>
+          <div className="space-y-1">
+            <h1 className="text-base font-bold text-gray-900">Accès Administrateur Direct</h1>
+            <p className="text-xs text-emerald-600 font-semibold">Mode développement local actif</p>
+          </div>
+          <div className="flex items-center justify-center gap-2 text-xs text-gray-500 pt-2">
+            <svg className="animate-spin h-4 w-4 text-black" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+            </svg>
+            <span>Ouverture du tableau de bord...</span>
+          </div>
+          <a
+            href="/admin"
+            className="inline-block mt-4 text-xs font-bold text-black underline hover:text-gray-700"
+          >
+            Cliquez ici si la redirection ne démarre pas &rarr;
+          </a>
+        </div>
+      </div>
+    );
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

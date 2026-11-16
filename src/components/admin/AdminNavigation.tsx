@@ -25,7 +25,7 @@ export function AdminNavigation({
 
   async function handleLogout() {
     await fetch("/api/admin/logout", { method: "POST" });
-    window.location.href = "/admin/login";
+    window.location.href = isProduction ? "/admin/login" : "/admin";
   }
 
   const navItems = [
