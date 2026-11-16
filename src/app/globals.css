@@ -77,10 +77,26 @@ h1, h2, h3, h4, h5, h6 {
   outline-offset: 1px;
 }
 
-/* Désactivation de l'indicateur de développement Next.js (bouton rond "N" en bas à gauche) */
+/* Désactivation totale et irréversible de l'indicateur Next.js (bouton rond "N" en bas à gauche) */
 nextjs-portal,
 [data-nextjs-toast],
-#nextjs-dev-overlay {
+[data-nextjs-dev-overlay],
+#nextjs-dev-overlay,
+[data-nextjs-route-announcer],
+next-route-announcer,
+div[data-nextjs-toast-wrapper],
+div[data-next-dev-tools],
+div[class*="nextjs-toast"],
+div[class*="nextjs-portal"] {
   display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  position: absolute !important;
+  left: -9999px !important;
+  bottom: -9999px !important;
+  z-index: -9999 !important;
 }
 

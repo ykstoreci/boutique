@@ -41,7 +41,7 @@ export function AdminLiveAlerts() {
   const isFirstSyncRef = useRef<boolean>(true);
   const broadcastChannelRef = useRef<BroadcastChannel | null>(null);
 
-  // Charger les préférences de son au montage
+  // Charger les préférences de son au montage et nettoyer l'indicateur dev
   useEffect(() => {
     setSoundEnabled(getSoundPreference());
 
@@ -55,7 +55,25 @@ export function AdminLiveAlerts() {
     window.addEventListener("click", handleFirstInteraction, { passive: true });
     window.addEventListener("touchstart", handleFirstInteraction, { passive: true });
 
+    // Élimination immédiate et continue de l'indicateur "N" Next.js dans le DOM
+    const removeDevBadge = () => {
+      if (typeof document === "undefined") return;
+      document.querySelectorAll("nextjs-portal, [data-nextjs-toast], #nextjs-dev-overlay").forEach((el) => {
+        try {
+          el.remove();
+        } catch {}
+      });
+    };
+    removeDevBadge();
+
+    let observer: MutationObserver | null = null;
+    try {
+      observer = new MutationObserver(removeDevBadge);
+      observer.observe(document.body, { childList: true, subtree: false });
+    } catch {}
+
     return () => {
+      observer?.disconnect();
       window.removeEventListener("click", handleFirstInteraction);
       window.removeEventListener("touchstart", handleFirstInteraction);
     };

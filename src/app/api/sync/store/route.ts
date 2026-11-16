@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { storeSettings, products, productVariants } from "@/db/schema";
 import { eq } from "drizzle-orm";
+import { cachedQuery } from "@/lib/cache";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -11,64 +12,72 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const productId = searchParams.get("productId");
 
-    const db = await getDb();
+    const cacheKey = `sync:store:${productId || "global"}`;
 
-    const [settings] = await db
-      .select({
-        ordersEnabled: storeSettings.ordersEnabled,
-        deliveryEnabled: storeSettings.deliveryEnabled,
-        shippingEnabled: storeSettings.shippingEnabled,
-        currency: storeSettings.currency,
-      })
-      .from(storeSettings)
-      .where(eq(storeSettings.id, 1))
-      .limit(1);
+    const data = await cachedQuery(cacheKey, 5000, async () => {
+      const db = await getDb();
 
-    let productData = null;
-
-    if (productId) {
-      const [prod] = await db
+      const [settings] = await db
         .select({
-          id: products.id,
-          name: products.name,
-          price: products.price,
-          promoPrice: products.promoPrice,
-          stock: products.stock,
-          trackStock: products.trackStock,
-          status: products.status,
+          ordersEnabled: storeSettings.ordersEnabled,
+          deliveryEnabled: storeSettings.deliveryEnabled,
+          shippingEnabled: storeSettings.shippingEnabled,
+          currency: storeSettings.currency,
         })
-        .from(products)
-        .where(eq(products.id, productId))
+        .from(storeSettings)
+        .where(eq(storeSettings.id, 1))
         .limit(1);
 
-      if (prod) {
-        const variants = await db
+      let productData = null;
+
+      if (productId) {
+        const [prod] = await db
           .select({
-            id: productVariants.id,
-            name: productVariants.name,
-            price: productVariants.price,
-            stock: productVariants.stock,
+            id: products.id,
+            name: products.name,
+            price: products.price,
+            promoPrice: products.promoPrice,
+            stock: products.stock,
+            trackStock: products.trackStock,
+            status: products.status,
           })
-          .from(productVariants)
-          .where(eq(productVariants.productId, productId));
+          .from(products)
+          .where(eq(products.id, productId))
+          .limit(1);
 
-        productData = {
-          ...prod,
-          isPublished: prod.status === "published",
-          variants,
-        };
+        if (prod) {
+          const variants = await db
+            .select({
+              id: productVariants.id,
+              name: productVariants.name,
+              price: productVariants.price,
+              stock: productVariants.stock,
+            })
+            .from(productVariants)
+            .where(eq(productVariants.productId, productId));
+
+          productData = {
+            ...prod,
+            isPublished: prod.status === "published",
+            variants,
+          };
+        }
       }
-    }
 
-    return NextResponse.json(
-      {
-        success: true,
-        serverTime: Date.now(),
+      return {
         ordersEnabled: settings?.ordersEnabled ?? true,
         deliveryEnabled: settings?.deliveryEnabled ?? true,
         shippingEnabled: settings?.shippingEnabled ?? true,
         currency: settings?.currency ?? "XOF",
         product: productData,
+      };
+    });
+
+    return NextResponse.json(
+      {
+        success: true,
+        serverTime: Date.now(),
+        ...data,
       },
       {
         headers: {
