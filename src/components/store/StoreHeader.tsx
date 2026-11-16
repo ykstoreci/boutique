@@ -18,7 +18,8 @@ export function StoreHeader({
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const h = settings.header;
-  const logoUrl = getImageUrl(logoKey, "medium");
+  const customLogo = getImageUrl(logoKey, "medium");
+  const logoUrl = customLogo || "/icons/logo-header.png";
 
   return (
     <header className={`${h.sticky ? "sticky top-0 z-40" : "relative"} w-full border-b transition-colors`}

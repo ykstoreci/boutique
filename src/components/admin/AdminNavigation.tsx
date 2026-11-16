@@ -118,9 +118,14 @@ export function AdminNavigation({
             onClick={() => handleLinkClick("/admin")}
             className="font-extrabold text-base tracking-tight flex items-center gap-2"
           >
-            <span className="w-7 h-7 rounded-lg bg-black text-white flex items-center justify-center text-xs font-bold">
-              B
-            </span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/icons/logo-header.png"
+              alt="Logo"
+              width={28}
+              height={28}
+              className="w-7 h-7 rounded-lg object-contain shadow-xs border border-gray-100"
+            />
             <span>Administration</span>
           </Link>
         </div>

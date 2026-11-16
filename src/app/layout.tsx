@@ -32,6 +32,17 @@ export async function generateMetadata(): Promise<Metadata> {
       statusBarStyle: "default",
       title: name,
     },
+    icons: {
+      icon: [
+        { url: "/icons/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+        { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+        { url: "/favicon.ico", sizes: "any" },
+      ],
+      shortcut: "/favicon.ico",
+      apple: [
+        { url: "/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+      ],
+    },
     formatDetection: {
       telephone: false,
     },
@@ -50,8 +61,11 @@ export default async function RootLayout({
     <html lang="fr" suppressHydrationWarning>
       <head>
         <style dangerouslySetInnerHTML={{ __html: `:root { ${themeCss} }` }} />
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png" />
+        <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
         <link rel="manifest" href="/manifest.json" />
-        <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
       </head>
       <body className="min-h-screen flex flex-col antialiased selection:bg-black selection:text-white">
         {children}

@@ -35,9 +35,14 @@ export function AdminLoginForm() {
     return (
       <div className="min-h-screen flex items-center justify-center p-4 bg-gray-50">
         <div className="w-full max-w-sm bg-white rounded-2xl shadow-xl border border-gray-100 p-8 text-center space-y-4">
-          <div className="w-12 h-12 rounded-xl bg-black text-white flex items-center justify-center mx-auto font-bold text-xl shadow-md">
-            B
-          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/icons/logo-header.png"
+            alt="Logo"
+            width={48}
+            height={48}
+            className="w-12 h-12 rounded-2xl object-contain mx-auto shadow-sm border border-gray-100"
+          />
           <div className="space-y-1">
             <h1 className="text-base font-bold text-gray-900">Accès Administrateur Direct</h1>
             <p className="text-xs text-emerald-600 font-semibold">Mode développement local actif</p>
@@ -90,9 +95,14 @@ export function AdminLoginForm() {
     <div className="min-h-screen flex items-center justify-center p-4 bg-gray-50">
       <div className="w-full max-w-sm bg-white rounded-2xl shadow-xl border border-gray-100 p-6 sm:p-8 space-y-6">
         <div className="text-center space-y-2">
-          <div className="w-12 h-12 rounded-xl bg-black text-white flex items-center justify-center mx-auto font-bold text-xl shadow-md">
-            B
-          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/icons/logo-header.png"
+            alt="Logo"
+            width={48}
+            height={48}
+            className="w-12 h-12 rounded-2xl object-contain mx-auto shadow-sm border border-gray-100"
+          />
           <h1 className="text-xl font-bold tracking-tight text-gray-900">
             Espace Propriétaire
           </h1>

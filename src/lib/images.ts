@@ -5,7 +5,7 @@ export function getImageUrl(
   variant: ImageVariant = "medium"
 ): string | null {
   if (!baseKey) return null;
-  if (baseKey.startsWith("http://") || baseKey.startsWith("https://")) {
+  if (baseKey.startsWith("/") || baseKey.startsWith("http://") || baseKey.startsWith("https://")) {
     return baseKey;
   }
   const suffix = variant === "original" ? "-large.webp" : `-${variant}.webp`;

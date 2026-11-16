@@ -52,9 +52,14 @@ export function AdminSetupForm() {
     <div className="min-h-screen flex items-center justify-center p-4 bg-gray-50">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-gray-100 p-6 sm:p-8 space-y-6">
         <div className="text-center space-y-2">
-          <div className="w-12 h-12 rounded-xl bg-black text-white flex items-center justify-center mx-auto font-bold text-xl shadow-md">
-            B
-          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/icons/logo-header.png"
+            alt="Logo"
+            width={48}
+            height={48}
+            className="w-12 h-12 rounded-2xl object-contain mx-auto shadow-sm border border-gray-100"
+          />
           <h1 className="text-xl font-bold tracking-tight text-gray-900">
             Initialisation Propriétaire
           </h1>
