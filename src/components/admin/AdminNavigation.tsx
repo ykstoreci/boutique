@@ -116,17 +116,18 @@ export function AdminNavigation({
             onMouseEnter={() => router.prefetch("/admin")}
             onTouchStart={() => router.prefetch("/admin")}
             onClick={() => handleLinkClick("/admin")}
-            className="font-extrabold text-base tracking-tight flex items-center gap-2"
+            className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+            title="Accueil Administration"
+            aria-label="Accueil Administration"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/icons/logo-header.png"
+              src="/icons/brand-b.png"
               alt="Logo"
-              width={28}
-              height={28}
-              className="w-7 h-7 rounded-lg object-contain shadow-xs border border-gray-100"
+              width={27}
+              height={32}
+              className="h-8 w-auto object-contain"
             />
-            <span>Administration</span>
           </Link>
         </div>
 
@@ -137,7 +138,7 @@ export function AdminNavigation({
             className="px-2.5 py-1.5 rounded-lg border border-gray-200 text-xs font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-1"
           >
             <span>Voir la boutique</span>
-            <span className="text-[10px]">&nearr;</span>
+            <span className="text-xs">↗</span>
           </Link>
 
           <Link

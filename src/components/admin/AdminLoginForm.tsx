@@ -37,11 +37,11 @@ export function AdminLoginForm() {
         <div className="w-full max-w-sm bg-white rounded-2xl shadow-xl border border-gray-100 p-8 text-center space-y-4">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/icons/logo-header.png"
+            src="/icons/brand-b.png"
             alt="Logo"
-            width={48}
+            width={40}
             height={48}
-            className="w-12 h-12 rounded-2xl object-contain mx-auto shadow-sm border border-gray-100"
+            className="h-12 w-auto object-contain mx-auto"
           />
           <div className="space-y-1">
             <h1 className="text-base font-bold text-gray-900">Accès Administrateur Direct</h1>
@@ -97,11 +97,11 @@ export function AdminLoginForm() {
         <div className="text-center space-y-2">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/icons/logo-header.png"
+            src="/icons/brand-b.png"
             alt="Logo"
-            width={48}
+            width={40}
             height={48}
-            className="w-12 h-12 rounded-2xl object-contain mx-auto shadow-sm border border-gray-100"
+            className="h-12 w-auto object-contain mx-auto"
           />
           <h1 className="text-xl font-bold tracking-tight text-gray-900">
             Espace Propriétaire
