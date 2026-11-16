@@ -1,0 +1,51 @@
+{
+  "name": "boutique",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node ./node_modules/next/dist/bin/next dev --turbopack",
+    "build": "node ./node_modules/next/dist/bin/next build",
+    "start": "node ./node_modules/next/dist/bin/next start -H 0.0.0.0 -p 3000",
+    "lint": "node ./node_modules/next/dist/bin/next lint",
+    "typecheck": "node ./node_modules/typescript/lib/tsc.js --noEmit",
+    "test": "node ./node_modules/vitest/vitest.mjs run",
+    "db:generate": "node ./node_modules/drizzle-kit/bin.cjs generate",
+    "db:migrate": "node ./node_modules/tsx/dist/cli.mjs scripts/migrate.ts",
+    "db:migrate:prod": "node ./node_modules/tsx/dist/cli.mjs scripts/migrate-production.ts",
+    "admin:create": "node ./node_modules/tsx/dist/cli.mjs scripts/create-admin.ts",
+    "vapid:generate": "node ./node_modules/tsx/dist/cli.mjs scripts/generate-vapid.ts",
+    "backup": "node ./node_modules/tsx/dist/cli.mjs scripts/backup.ts",
+    "restore": "node ./node_modules/tsx/dist/cli.mjs scripts/restore.ts"
+  },
+  "dependencies": {
+    "@electric-sql/pglite": "^0.2.16",
+    "bcryptjs": "^2.4.3",
+    "drizzle-orm": "^0.39.3",
+    "next": "^15.1.7",
+    "pg": "^8.13.3",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "sharp": "^0.33.5",
+    "web-push": "^3.6.7",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.0.9",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^22.13.5",
+    "@types/pg": "^8.11.11",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "@types/web-push": "^3.6.4",
+    "dotenv": "^16.4.7",
+    "drizzle-kit": "^0.30.4",
+    "eslint": "^9.21.0",
+    "eslint-config-next": "^15.1.7",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^4.0.9",
+    "tsx": "^4.19.3",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.7"
+  }
+}

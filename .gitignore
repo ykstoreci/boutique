@@ -1,0 +1,26 @@
+# dépendances
+/node_modules
+
+# next.js & plateformes de déploiement
+/.next/
+/out/
+/.netlify/
+/.vercel/
+next-env.d.ts
+*.tsbuildinfo
+
+# environnement (secrets)
+.env
+.env.local
+.env.*.local
+
+# données locales (base PGlite, fichiers importés, sauvegardes)
+/storage/
+/backups/
+
+# divers
+.DS_Store
+npm-debug.log*
+/coverage
+/test-results
+
