@@ -10,6 +10,18 @@ const nextConfig = {
       static: 600,
     },
   },
+  redirects: async () => [
+    {
+      source: "/admin/:path*",
+      destination: "/boutick/:path*",
+      permanent: false,
+    },
+    {
+      source: "/admin",
+      destination: "/boutick",
+      permanent: false,
+    },
+  ],
   headers: async () => [
     {
       source: "/:path*",

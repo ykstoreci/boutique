@@ -32,11 +32,11 @@ export function AdminNavigation({
   // Pré-chargement intelligent des sections clés en mémoire (1ms au clic)
   useEffect(() => {
     const timer = setTimeout(() => {
-      router.prefetch("/admin");
-      router.prefetch("/admin/orders");
-      router.prefetch("/admin/stock");
-      router.prefetch("/admin/products");
-      router.prefetch("/admin/theme");
+      router.prefetch("/boutick");
+      router.prefetch("/boutick/orders");
+      router.prefetch("/boutick/stock");
+      router.prefetch("/boutick/products");
+      router.prefetch("/boutick/theme");
     }, 300);
     return () => clearTimeout(timer);
   }, [router]);
@@ -69,13 +69,13 @@ export function AdminNavigation({
   }, []);
 
   // Si on est sur la page de connexion ou d'initialisation, ne pas afficher la navigation
-  if (pathname === "/admin/login" || pathname === "/admin/setup") {
+  if (pathname === "/boutick/login" || pathname === "/boutick/setup") {
     return null;
   }
 
   async function handleLogout() {
     await fetch("/api/admin/logout", { method: "POST" });
-    window.location.href = isProduction ? "/admin/login" : "/admin";
+    window.location.href = isProduction ? "/boutick/login" : "/boutick";
   }
 
   const handleLinkClick = (href: string) => {
@@ -86,17 +86,17 @@ export function AdminNavigation({
   };
 
   const navItems = [
-    { href: "/admin", label: "Tableau de bord", icon: "📊" },
-    { href: "/admin/orders", label: "Commandes", icon: "🛍️", badge: liveNewOrdersCount },
-    { href: "/admin/products", label: "Produits", icon: "📦" },
-    { href: "/admin/categories", label: "Catégories", icon: "🏷️" },
-    { href: "/admin/customers", label: "Clients", icon: "👥" },
-    { href: "/admin/stock", label: "Stocks", icon: "📈" },
-    { href: "/admin/shipping", label: "Livraison & Expédition", icon: "🛵" },
-    { href: "/admin/theme", label: "Personnalisation", icon: "🎨" },
-    { href: "/admin/pages", label: "Gestion des pages", icon: "📄" },
-    { href: "/admin/notifications", label: "Notifications", icon: "🔔", badge: liveUnreadCount },
-    { href: "/admin/settings", label: "Paramètres", icon: "⚙️" },
+    { href: "/boutick", label: "Tableau de bord", icon: "📊" },
+    { href: "/boutick/orders", label: "Commandes", icon: "🛍️", badge: liveNewOrdersCount },
+    { href: "/boutick/products", label: "Produits", icon: "📦" },
+    { href: "/boutick/categories", label: "Catégories", icon: "🏷️" },
+    { href: "/boutick/customers", label: "Clients", icon: "👥" },
+    { href: "/boutick/stock", label: "Stocks", icon: "📈" },
+    { href: "/boutick/shipping", label: "Livraison & Expédition", icon: "🛵" },
+    { href: "/boutick/theme", label: "Personnalisation", icon: "🎨" },
+    { href: "/boutick/pages", label: "Gestion des pages", icon: "📄" },
+    { href: "/boutick/notifications", label: "Notifications", icon: "🔔", badge: liveUnreadCount },
+    { href: "/boutick/settings", label: "Paramètres", icon: "⚙️" },
   ];
 
 
@@ -112,10 +112,10 @@ export function AdminNavigation({
       <header className="sticky top-0 z-30 h-14 bg-white border-b border-gray-200 px-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Link
-            href="/admin"
-            onMouseEnter={() => router.prefetch("/admin")}
-            onTouchStart={() => router.prefetch("/admin")}
-            onClick={() => handleLinkClick("/admin")}
+            href="/boutick"
+            onMouseEnter={() => router.prefetch("/boutick")}
+            onTouchStart={() => router.prefetch("/boutick")}
+            onClick={() => handleLinkClick("/boutick")}
             className="flex items-center gap-2 hover:opacity-80 transition-opacity"
             title="Accueil Administration"
             aria-label="Accueil Administration"
@@ -142,10 +142,10 @@ export function AdminNavigation({
           </Link>
 
           <Link
-            href="/admin/notifications"
-            onMouseEnter={() => router.prefetch("/admin/notifications")}
-            onTouchStart={() => router.prefetch("/admin/notifications")}
-            onClick={() => handleLinkClick("/admin/notifications")}
+            href="/boutick/notifications"
+            onMouseEnter={() => router.prefetch("/boutick/notifications")}
+            onTouchStart={() => router.prefetch("/boutick/notifications")}
+            onClick={() => handleLinkClick("/boutick/notifications")}
             className="relative p-2 rounded-lg text-gray-600 hover:bg-gray-100"
             aria-label="Notifications"
           >
@@ -157,19 +157,9 @@ export function AdminNavigation({
             )}
           </Link>
 
-          {isProduction ? (
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="p-1.5 text-xs text-red-600 font-medium hover:bg-red-50 rounded-lg hidden sm:block"
-            >
-              Déconnexion
-            </button>
-          ) : (
-            <span className="px-2 py-1 rounded-md bg-emerald-50 text-emerald-700 text-[11px] font-semibold hidden sm:inline-block">
-              Accès local direct
-            </span>
-          )}
+          <span className="px-2 py-1 rounded-md bg-emerald-50 text-emerald-700 text-[11px] font-semibold hidden sm:inline-block">
+            Espace Propriétaire
+          </span>
         </div>
       </header>
 
@@ -181,7 +171,7 @@ export function AdminNavigation({
         <nav className="space-y-1 flex-1">
           {navItems.map((item) => {
             const currentSelected = targetHref !== null ? targetHref : pathname;
-            const isActive = currentSelected === item.href || (item.href !== "/admin" && currentSelected.startsWith(item.href));
+            const isActive = currentSelected === item.href || (item.href !== "/boutick" && currentSelected.startsWith(item.href));
             return (
               <Link
                 key={item.href}
@@ -232,13 +222,13 @@ export function AdminNavigation({
       {/* BARRE D'ONGLETS BAS MOBILE (Style Application iPhone / PWA) */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 flex items-center justify-around h-16 pb-safe px-2">
         {[
-          { href: "/admin", label: "Accueil", icon: "📊" },
-          { href: "/admin/orders", label: "Commandes", icon: "🛍️", badge: liveNewOrdersCount },
-          { href: "/admin/products", label: "Produits", icon: "📦" },
-          { href: "/admin/theme", label: "Thème", icon: "🎨" },
+          { href: "/boutick", label: "Accueil", icon: "📊" },
+          { href: "/boutick/orders", label: "Commandes", icon: "🛍️", badge: liveNewOrdersCount },
+          { href: "/boutick/products", label: "Produits", icon: "📦" },
+          { href: "/boutick/theme", label: "Thème", icon: "🎨" },
         ].map((tab) => {
           const currentSelected = targetHref !== null ? targetHref : pathname;
-          const isActive = currentSelected === tab.href || (tab.href !== "/admin" && currentSelected.startsWith(tab.href));
+          const isActive = currentSelected === tab.href || (tab.href !== "/boutick" && currentSelected.startsWith(tab.href));
           return (
             <Link
               key={tab.href}

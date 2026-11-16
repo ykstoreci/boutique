@@ -296,7 +296,7 @@ export function AdminLiveAlerts() {
 
             <div className="flex items-center gap-2 pt-1">
               <Link
-                href={`/admin/orders/${activeAlert.id}`}
+                href={`/boutick/orders/${activeAlert.id}`}
                 onClick={() => setActiveAlert(null)}
                 className="flex-1 py-2 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-xs text-center transition-all active:scale-98 shadow-md"
               >

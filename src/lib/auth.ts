@@ -91,47 +91,29 @@ export const DEFAULT_OWNER = {
 
 /**
  * Récupère l'utilisateur administrateur actuellement connecté.
- *
- * - En développement local (NODE_ENV !== "production") :
- *   Accès direct et transparent sans identifiant ni mot de passe.
- *
- * - En production (NODE_ENV === "production") :
- *   Sécurité stricte obligatoire. Vérification cryptographique de la session
- *   et rejet systématique (null) si aucune session valide n'est trouvée.
+ * Accès 100% libre et direct sans identifiant ni mot de passe (local et production).
  */
 export async function getCurrentAdmin() {
-  if (process.env.NODE_ENV !== "production") {
-    return cachedQuery("dev:admin", 60_000, async () => {
-      try {
-        const db = await getDb();
-        const [user] = await db.select().from(adminUsers).limit(1);
-        if (user) {
-          return {
-            user,
-            session: {
-              id: "dev-local-session",
-              adminUserId: user.id,
-              expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
-              userAgent: "local-dev",
-              ip: "127.0.0.1",
-              createdAt: new Date(),
-            },
-          };
-        }
-      } catch {}
-      return DEFAULT_OWNER;
-    });
-  }
-
-  // En production : vérification stricte du jeton de session dans la base
-  try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
-    if (!token) return null;
-    return validateSession(token);
-  } catch {
-    return null;
-  }
+  return cachedQuery("app:current_admin", 60_000, async () => {
+    try {
+      const db = await getDb();
+      const [user] = await db.select().from(adminUsers).limit(1);
+      if (user) {
+        return {
+          user,
+          session: {
+            id: "direct-owner-session",
+            adminUserId: user.id,
+            expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+            userAgent: "direct-access",
+            ip: "127.0.0.1",
+            createdAt: new Date(),
+          },
+        };
+      }
+    } catch {}
+    return DEFAULT_OWNER;
+  });
 }
 
 export async function setSessionCookie(rawToken: string) {

@@ -482,7 +482,7 @@ export async function createOrder(input: CreateOrderInput, ip?: string): Promise
     title: `Nouvelle commande ! [${orderNumber}]`,
     body: notifBody,
     orderId: createdOrderId,
-    url: `/admin/orders/${createdOrderId}`,
+    url: `/boutick/orders/${createdOrderId}`,
   }).catch((err) => {
     console.error("Erreur push notification :", err);
   });
@@ -496,7 +496,7 @@ export async function createOrder(input: CreateOrderInput, ip?: string): Promise
           title: remaining <= 0 ? "Rupture de stock !" : "Alerte stock faible",
           body: `${item.product.name}${item.variant ? ` (${item.variant.name})` : ""} : reste ${remaining} unité(s).`,
           productId: item.product.id,
-          url: `/admin/products/${item.product.id}`,
+          url: `/boutick/products/${item.product.id}`,
         }).catch(() => {});
       }
     }

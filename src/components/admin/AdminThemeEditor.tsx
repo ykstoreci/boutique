@@ -673,7 +673,7 @@ export function AdminThemeEditor({
             <div className="w-full h-full bg-white rounded-2xl overflow-hidden shadow-inner">
               <iframe
                 key={iframeKey}
-                src="/admin/theme/preview"
+                src="/boutick/theme/preview"
                 title="Prévisualisation du thème"
                 className="w-full h-full border-0"
               />

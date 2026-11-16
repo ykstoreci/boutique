@@ -11,7 +11,7 @@ export async function POST() {
   const notifId = await sendAdminNotification("test", {
     title: "🔔 Test de notification Push réussi !",
     body: "Votre iPhone est correctement configuré pour recevoir les nouvelles commandes en temps réel.",
-    url: "/admin/orders",
+    url: "/boutick/orders",
     tag: "test-notification",
   });
 

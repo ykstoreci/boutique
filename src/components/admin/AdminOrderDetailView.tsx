@@ -86,7 +86,7 @@ export function AdminOrderDetailView({
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <Link href="/admin/orders" className="text-xs text-gray-500 hover:underline">
+            <Link href="/boutick/orders" className="text-xs text-gray-500 hover:underline">
               &larr; Retour aux commandes
             </Link>
           </div>

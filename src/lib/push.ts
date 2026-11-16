@@ -83,7 +83,7 @@ export async function sendAdminNotification(
         type,
         title: data.title,
         body: data.body,
-        url: data.url || "/admin/orders",
+        url: data.url || "/boutick/orders",
         orderId: data.orderId || null,
         productId: data.productId || null,
         pushStatus: "pending",
@@ -117,14 +117,14 @@ export async function sendAdminNotification(
     const payload = JSON.stringify({
       title: data.title,
       body: data.body,
-      url: data.url || "/admin/orders",
+      url: data.url || "/boutick/orders",
       icon: "/icons/icon-192.png",
       badge: "/icons/icon-72.png",
       tag: data.tag || type,
       timestamp: Date.now(),
       data: {
         orderId: data.orderId,
-        url: data.url || "/admin/orders",
+        url: data.url || "/boutick/orders",
       },
     });
 

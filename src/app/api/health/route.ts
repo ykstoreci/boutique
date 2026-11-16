@@ -60,7 +60,7 @@ export async function GET() {
       },
       setup: {
         isSetupRequired: admins.length === 0,
-        setupUrl: admins.length === 0 ? "/admin/setup" : null,
+        setupUrl: admins.length === 0 ? "/boutick" : null,
       },
     });
   } catch (err) {

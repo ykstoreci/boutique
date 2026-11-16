@@ -1062,7 +1062,7 @@ export function AdminStockView({
                           </td>
                           <td className="py-3.5 px-4 text-right">
                             <Link
-                              href={`/admin/products/${p.id}`}
+                              href={`/boutick/products/${p.id}`}
                               className="text-xs font-semibold text-blue-600 hover:underline"
                             >
                               Détails &rarr;

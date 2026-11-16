@@ -153,7 +153,7 @@ export function AdminProductForm({
       });
       const data = await res.json();
       if (res.ok && data.success) {
-        window.location.href = `/admin/products/${data.productId}`;
+        window.location.href = `/boutick/products/${data.productId}`;
       } else {
         alert(data.error || "Erreur lors de la duplication.");
       }
@@ -173,7 +173,7 @@ export function AdminProductForm({
         method: "DELETE",
       });
       if (res.ok) {
-        window.location.href = "/admin/products";
+        window.location.href = "/boutick/products";
       } else {
         alert("Impossible de supprimer cet article.");
       }
@@ -217,7 +217,7 @@ export function AdminProductForm({
 
       const data = await res.json();
       if (res.ok && data.success) {
-        window.location.href = "/admin/products";
+        window.location.href = "/boutick/products";
       } else {
         setError(data.error || "Erreur d'enregistrement.");
       }
@@ -232,7 +232,7 @@ export function AdminProductForm({
     <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <Link href="/admin/products" className="text-xs text-gray-500 hover:underline">
+          <Link href="/boutick/products" className="text-xs text-gray-500 hover:underline">
             &larr; Retour à la liste
           </Link>
           <h1 className="text-2xl font-black tracking-tight mt-1">
