@@ -77,3 +77,10 @@ h1, h2, h3, h4, h5, h6 {
   outline-offset: 1px;
 }
 
+/* Désactivation de l'indicateur de développement Next.js (bouton rond "N" en bas à gauche) */
+nextjs-portal,
+[data-nextjs-toast],
+#nextjs-dev-overlay {
+  display: none !important;
+}
+
