@@ -1,7 +1,8 @@
 import { getCurrentAdmin } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { getDb } from "@/db";
-import { products, categories, productImages, storeSettings } from "@/db/schema";
+import { products, categories, productImages } from "@/db/schema";
+import { getCachedStoreSettings, cachedQuery } from "@/lib/cache";
 import { formatMoney } from "@/lib/money";
 import { getImageUrl } from "@/lib/storage";
 import { eq, desc, sql } from "drizzle-orm";
@@ -15,37 +16,42 @@ export default async function AdminProductsPage({
   const admin = await getCurrentAdmin();
   if (!admin) redirect("/admin/login");
 
-  const { cat, q } = await searchParams;
-  const db = await getDb();
-  const [settings] = await db.select().from(storeSettings).where(eq(storeSettings.id, 1)).limit(1);
+  const [settings, data] = await Promise.all([
+    getCachedStoreSettings(),
+    cachedQuery("admin:products:list", 15_000, async () => {
+      const db = await getDb();
+      const [allCategories, allProducts] = await Promise.all([
+        db.select().from(categories).orderBy(categories.position),
+        db
+          .select({
+            id: products.id,
+            name: products.name,
+            slug: products.slug,
+            reference: products.reference,
+            price: products.price,
+            promoPrice: products.promoPrice,
+            stock: products.stock,
+            trackStock: products.trackStock,
+            status: products.status,
+            categoryName: categories.name,
+            imageKey: sql<string>`(
+              SELECT storage_key FROM product_images
+              WHERE product_images.product_id = ${products.id}
+              ORDER BY is_main DESC, position ASC
+              LIMIT 1
+            )`,
+          })
+          .from(products)
+          .leftJoin(categories, eq(products.categoryId, categories.id))
+          .orderBy(desc(products.createdAt)),
+      ]);
+      return { allCategories, allProducts };
+    }),
+  ]);
 
+  const { allCategories, allProducts } = data;
   const currency = settings?.currency || "XOF";
   const locale = settings?.locale || "fr-FR";
-
-  const allCategories = await db.select().from(categories).orderBy(categories.position);
-
-  const allProducts = await db
-    .select({
-      id: products.id,
-      name: products.name,
-      slug: products.slug,
-      reference: products.reference,
-      price: products.price,
-      promoPrice: products.promoPrice,
-      stock: products.stock,
-      trackStock: products.trackStock,
-      status: products.status,
-      categoryName: categories.name,
-      imageKey: sql<string>`(
-        SELECT storage_key FROM product_images
-        WHERE product_images.product_id = ${products.id}
-        ORDER BY is_main DESC, position ASC
-        LIMIT 1
-      )`,
-    })
-    .from(products)
-    .leftJoin(categories, eq(products.categoryId, categories.id))
-    .orderBy(desc(products.createdAt));
 
   return (
     <div className="space-y-6">

@@ -173,14 +173,15 @@ export function AdminLiveAlerts() {
     // Exécuter immédiatement
     syncAdminData();
 
-    // Intervalle dynamique selon que l'onglet est actif ou en arrière-plan
+    // Intervalle optimisé pour ne pas saturer le CPU et le serveur
     let intervalId: NodeJS.Timeout;
 
     const setupInterval = () => {
       clearInterval(intervalId);
       const isVisible = typeof document !== "undefined" ? document.visibilityState === "visible" : true;
-      // 3.5 secondes si l'onglet est affiché, 15 secondes si en arrière-plan (économie batterie/data)
-      const delay = isVisible ? 3500 : 15000;
+      // 12 secondes lorsque l'onglet est actif, 30 secondes en arrière-plan
+      // (la communication inter-onglets BroadcastChannel reste instantanée à 0ms)
+      const delay = isVisible ? 12000 : 30000;
       intervalId = setInterval(syncAdminData, delay);
     };
 
@@ -193,11 +194,13 @@ export function AdminLiveAlerts() {
       setupInterval();
     };
 
+    window.addEventListener("focus", syncAdminData);
     document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
       isMounted = false;
       clearInterval(intervalId);
+      window.removeEventListener("focus", syncAdminData);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       if (broadcastChannelRef.current) {
         broadcastChannelRef.current.close();

@@ -1,9 +1,10 @@
 import { getCurrentAdmin } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { getDb } from "@/db";
-import { customers, orders, storeSettings } from "@/db/schema";
+import { customers, orders } from "@/db/schema";
+import { getCachedStoreSettings, cachedQuery } from "@/lib/cache";
 import { formatMoney } from "@/lib/money";
-import { desc, sql, ilike, eq } from "drizzle-orm";
+import { desc, sql } from "drizzle-orm";
 import Link from "next/link";
 
 export default async function AdminCustomersPage({
@@ -15,8 +16,7 @@ export default async function AdminCustomersPage({
   if (!admin) redirect("/admin/login");
 
   const { q } = await searchParams;
-  const db = await getDb();
-  const [settings] = await db.select().from(storeSettings).where(eq(storeSettings.id, 1)).limit(1);
+  const settings = await getCachedStoreSettings();
 
   const currency = settings?.currency || "XOF";
   const locale = settings?.locale || "fr-FR";
@@ -27,26 +27,30 @@ export default async function AdminCustomersPage({
     condition = sql`(${customers.name} ILIKE ${term} OR ${customers.phone} ILIKE ${term} OR ${customers.city} ILIKE ${term})`;
   }
 
-  const allCustomers = await db
-    .select({
-      id: customers.id,
-      name: customers.name,
-      phone: customers.phone,
-      city: customers.city,
-      createdAt: customers.createdAt,
-      orderCount: sql<number>`(
-        SELECT count(*) FROM orders
-        WHERE orders.customer_id = ${customers.id}
-      )`,
-      totalSpent: sql<number>`(
-        SELECT coalesce(sum(orders.total), 0) FROM orders
-        WHERE orders.customer_id = ${customers.id}
-        AND orders.status != 'cancelled'
-      )`,
-    })
-    .from(customers)
-    .where(condition)
-    .orderBy(desc(customers.updatedAt));
+  const cacheKey = `admin:customers:${q || "all"}`;
+  const allCustomers = await cachedQuery(cacheKey, 15_000, async () => {
+    const db = await getDb();
+    return db
+      .select({
+        id: customers.id,
+        name: customers.name,
+        phone: customers.phone,
+        city: customers.city,
+        createdAt: customers.createdAt,
+        orderCount: sql<number>`(
+          SELECT count(*) FROM orders
+          WHERE orders.customer_id = ${customers.id}
+        )`,
+        totalSpent: sql<number>`(
+          SELECT coalesce(sum(orders.total), 0) FROM orders
+          WHERE orders.customer_id = ${customers.id}
+          AND orders.status != 'cancelled'
+        )`,
+      })
+      .from(customers)
+      .where(condition)
+      .orderBy(desc(customers.updatedAt));
+  });
 
   return (
     <div className="space-y-6">

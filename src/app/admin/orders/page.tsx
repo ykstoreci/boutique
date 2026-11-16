@@ -1,10 +1,11 @@
 import { getCurrentAdmin } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { getDb } from "@/db";
-import { orders, storeSettings } from "@/db/schema";
+import { orders } from "@/db/schema";
+import { getCachedStoreSettings, cachedQuery } from "@/lib/cache";
 import { formatMoney } from "@/lib/money";
 import { getSourceDisplay } from "@/lib/tracking";
-import { eq, and, desc, sql, ilike } from "drizzle-orm";
+import { eq, and, desc, sql, type SQL } from "drizzle-orm";
 import Link from "next/link";
 
 export default async function AdminOrdersPage({
@@ -16,13 +17,12 @@ export default async function AdminOrdersPage({
   if (!admin) redirect("/admin/login");
 
   const { status, mode, source, q } = await searchParams;
-  const db = await getDb();
-  const [settings] = await db.select().from(storeSettings).where(eq(storeSettings.id, 1)).limit(1);
+  const settings = await getCachedStoreSettings();
 
   const currency = settings?.currency || "XOF";
   const locale = settings?.locale || "fr-FR";
 
-  const conditions = [];
+  const conditions: SQL[] = [];
 
   if (status && status !== "all") {
     // @ts-expect-error valid status
@@ -44,11 +44,15 @@ export default async function AdminOrdersPage({
     );
   }
 
-  const allOrders = await db
-    .select()
-    .from(orders)
-    .where(conditions.length > 0 ? and(...conditions) : undefined)
-    .orderBy(desc(orders.createdAt));
+  const cacheKey = `admin:orders:${status || ""}:${mode || ""}:${source || ""}:${q || ""}`;
+  const allOrders = await cachedQuery(cacheKey, 10_000, async () => {
+    const db = await getDb();
+    return db
+      .select()
+      .from(orders)
+      .where(conditions.length > 0 ? and(...conditions) : undefined)
+      .orderBy(desc(orders.createdAt));
+  });
 
   const STATUS_LABELS: Record<string, { label: string; color: string }> = {
     new: { label: "Nouvelle", color: "bg-red-100 text-red-700" },

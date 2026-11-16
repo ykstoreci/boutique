@@ -54,6 +54,7 @@ export async function POST(req: NextRequest) {
       .returning();
 
     invalidateCache("store:");
+    invalidateCache("admin:categories");
     await logAudit(admin.user.id, "create_category", "categories", created.id, { name: created.name });
     return NextResponse.json({ success: true, category: created });
   } catch (err) {
@@ -108,6 +109,7 @@ export async function PUT(req: NextRequest) {
       .where(eq(categories.id, catId));
 
     invalidateCache("store:");
+    invalidateCache("admin:categories");
     await logAudit(admin.user.id, "update_category", "categories", catId, { name: data.name });
     return NextResponse.json({ success: true });
   } catch (err) {
@@ -129,6 +131,7 @@ export async function DELETE(req: NextRequest) {
     await db.delete(categories).where(eq(categories.id, id));
 
     invalidateCache("store:");
+    invalidateCache("admin:categories");
     await logAudit(admin.user.id, "delete_category", "categories", id);
     return NextResponse.json({ success: true });
   } catch (err) {

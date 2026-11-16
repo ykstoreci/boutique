@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getCurrentAdmin, logAudit } from "@/lib/auth";
 import { getDb } from "@/db";
 import { shippingZones, storeSettings } from "@/db/schema";
+import { invalidateCache } from "@/lib/cache";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 
@@ -39,6 +40,7 @@ export async function POST(req: NextRequest) {
       })
       .returning();
 
+    invalidateCache("admin:shipping");
     await logAudit(admin.user.id, "create_shipping_zone", "shipping_zones", created.id, { name: created.name });
     return NextResponse.json({ success: true, zone: created });
   } catch (err) {
@@ -59,6 +61,7 @@ export async function DELETE(req: NextRequest) {
     const db = await getDb();
     await db.delete(shippingZones).where(eq(shippingZones.id, id));
 
+    invalidateCache("admin:shipping");
     await logAudit(admin.user.id, "delete_shipping_zone", "shipping_zones", id);
     return NextResponse.json({ success: true });
   } catch (err) {
@@ -95,6 +98,8 @@ export async function PUT(req: NextRequest) {
       })
       .where(eq(storeSettings.id, 1));
 
+    invalidateCache("admin:shipping");
+    invalidateCache("store:");
     await logAudit(admin.user.id, "update_shipping_settings", "store_settings", "1", parsed.data);
     return NextResponse.json({ success: true });
   } catch (err) {

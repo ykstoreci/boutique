@@ -42,7 +42,7 @@ export default async function AdminDashboardPage({
 
   const [settings, dashData] = await Promise.all([
     getCachedStoreSettings(),
-    cachedQuery(`admin:dashboard:${period}`, 5_000, async () => {
+    cachedQuery(`admin:dashboard:${period}`, 30_000, async () => {
       const db = await getDb();
       const [
         allProducts,

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getCurrentAdmin, logAudit } from "@/lib/auth";
 import { getDb } from "@/db";
 import { pages } from "@/db/schema";
+import { invalidateCache } from "@/lib/cache";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 
@@ -38,6 +39,8 @@ export async function PUT(req: NextRequest) {
       })
       .where(eq(pages.id, id));
 
+    invalidateCache("admin:pages");
+    invalidateCache("store:footerPages");
     await logAudit(admin.user.id, "update_page", "pages", id, { title });
     return NextResponse.json({ success: true });
   } catch (err) {

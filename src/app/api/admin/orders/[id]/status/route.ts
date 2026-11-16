@@ -13,6 +13,7 @@ import {
   type OrderStatus,
   type PaymentStatus,
 } from "@/db/schema";
+import { invalidateCache } from "@/lib/cache";
 import { eq, sql } from "drizzle-orm";
 import { z } from "zod";
 
@@ -193,6 +194,7 @@ export async function POST(
       { status, paymentStatus, note }
     );
 
+    invalidateCache();
     return NextResponse.json({ success: true });
   } catch (err) {
     console.error("Erreur mise à jour commande :", err);

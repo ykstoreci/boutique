@@ -71,6 +71,7 @@ export async function PUT(req: NextRequest) {
     }
 
     invalidateCache("theme:");
+    invalidateCache("admin:theme");
     await logAudit(admin.user.id, "update_theme_draft", "themes", theme.id);
     return NextResponse.json({ success: true });
   } catch (err) {
@@ -134,6 +135,7 @@ export async function POST(req: NextRequest) {
       });
 
       invalidateCache("theme:");
+    invalidateCache("admin:theme");
       await logAudit(admin.user.id, "publish_theme", "theme_versions", versionId, { version: nextVersion });
       return NextResponse.json({ success: true, version: nextVersion });
     }
@@ -177,6 +179,7 @@ export async function POST(req: NextRequest) {
       });
 
       invalidateCache("theme:");
+    invalidateCache("admin:theme");
       await logAudit(admin.user.id, "restore_theme_version", "theme_versions", body.versionId, { version: v.version });
       return NextResponse.json({ success: true });
     }

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getCurrentAdmin } from "@/lib/auth";
 import { getDb } from "@/db";
 import { notifications } from "@/db/schema";
+import { invalidateCache } from "@/lib/cache";
 import { eq } from "drizzle-orm";
 
 export async function POST(req: NextRequest) {
@@ -14,11 +15,15 @@ export async function POST(req: NextRequest) {
 
     if (body.action === "mark_all_read") {
       await db.update(notifications).set({ isRead: true });
+      invalidateCache("admin:notifications");
+      invalidateCache("admin:badges");
       return NextResponse.json({ success: true });
     }
 
     if (body.notificationId) {
       await db.update(notifications).set({ isRead: true }).where(eq(notifications.id, body.notificationId));
+      invalidateCache("admin:notifications");
+      invalidateCache("admin:badges");
       return NextResponse.json({ success: true });
     }
 

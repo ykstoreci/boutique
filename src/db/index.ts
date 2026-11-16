@@ -21,14 +21,17 @@ export async function getDb(): Promise<Database> {
       process.env.POSTGRES_URL ||
       process.env.POSTGRES_PRISMA_URL ||
       process.env.POSTGRES_URL_NON_POOLING;
-    globalForDb.__boutiqueDb = createDatabase(url).catch((err) => {
-      globalForDb.__boutiqueDb = undefined;
-      throw err;
-    });
+    globalForDb.__boutiqueDb = createDatabase(url)
+      .then(async (db) => {
+        await ensureArrivalsSchema(db);
+        return db;
+      })
+      .catch((err) => {
+        globalForDb.__boutiqueDb = undefined;
+        throw err;
+      });
   }
-  const db = await globalForDb.__boutiqueDb;
-  await ensureArrivalsSchema(db);
-  return db;
+  return globalForDb.__boutiqueDb;
 }
 
 export type { Database, Tx } from "./client";
