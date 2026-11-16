@@ -7,6 +7,8 @@ import { cachedQuery } from "@/lib/cache";
 import { AdminThemeEditor } from "@/components/admin/AdminThemeEditor";
 import { eq, desc } from "drizzle-orm";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminThemePage() {
   const admin = await getCurrentAdmin();
   

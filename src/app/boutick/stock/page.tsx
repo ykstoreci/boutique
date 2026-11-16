@@ -11,6 +11,8 @@ import {
 import { AdminStockView } from "@/components/admin/AdminStockView";
 import { desc } from "drizzle-orm";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminStockPage() {
   const admin = await getCurrentAdmin();
   

@@ -6,6 +6,8 @@ import { AdminProductForm } from "@/components/admin/AdminProductForm";
 import { ProductCampaignLinkBuilder } from "@/components/admin/ProductCampaignLinkBuilder";
 import { eq, sql } from "drizzle-orm";
 
+export const dynamic = "force-dynamic";
+
 export default async function EditProductPage({
   params,
 }: {

@@ -5,6 +5,8 @@ import { orders, orderItems, orderStatusHistory, storeSettings } from "@/db/sche
 import { AdminOrderDetailView } from "@/components/admin/AdminOrderDetailView";
 import { eq, desc } from "drizzle-orm";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminOrderDetailPage({
   params,
 }: {

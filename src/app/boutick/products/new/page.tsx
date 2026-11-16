@@ -5,6 +5,8 @@ import { categories, storeSettings } from "@/db/schema";
 import { AdminProductForm } from "@/components/admin/AdminProductForm";
 import { eq } from "drizzle-orm";
 
+export const dynamic = "force-dynamic";
+
 export default async function NewProductPage() {
   const admin = await getCurrentAdmin();
   

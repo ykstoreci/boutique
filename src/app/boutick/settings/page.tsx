@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { getCachedStoreSettings } from "@/lib/cache";
 import { AdminSettingsView } from "@/components/admin/AdminSettingsView";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminSettingsPage() {
   const admin = await getCurrentAdmin();
   

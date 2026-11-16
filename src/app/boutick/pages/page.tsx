@@ -6,6 +6,8 @@ import { cachedQuery } from "@/lib/cache";
 import { AdminPagesView } from "@/components/admin/AdminPagesView";
 import { asc } from "drizzle-orm";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminPagesListPage() {
   const admin = await getCurrentAdmin();
   

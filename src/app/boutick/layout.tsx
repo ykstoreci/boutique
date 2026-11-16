@@ -4,6 +4,8 @@ import { AdminNavigation } from "@/components/admin/AdminNavigation";
 import { AdminPwaManager } from "@/components/admin/AdminPwaManager";
 import { AdminLiveAlerts } from "@/components/admin/AdminLiveAlerts";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminLayout({
   children,
 }: {

@@ -5,6 +5,8 @@ import { shippingZones } from "@/db/schema";
 import { getCachedStoreSettings, cachedQuery } from "@/lib/cache";
 import { AdminShippingView } from "@/components/admin/AdminShippingView";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminShippingPage() {
   const admin = await getCurrentAdmin();
   

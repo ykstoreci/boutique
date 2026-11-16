@@ -1,0 +1,3 @@
+# Redirections Netlify Edge CDN
+/admin/*  /boutick/:splat  302!
+/admin    /boutick         302!

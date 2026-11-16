@@ -17,6 +17,8 @@ import { StoreFooter } from "@/components/store/StoreFooter";
 import { HomeSection } from "@/components/store/HomeSection";
 import { eq, desc, sql } from "drizzle-orm";
 
+export const dynamic = "force-dynamic";
+
 export default async function ThemePreviewPage() {
   const admin = await getCurrentAdmin();
   

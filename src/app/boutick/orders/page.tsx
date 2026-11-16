@@ -8,6 +8,8 @@ import { getSourceDisplay } from "@/lib/tracking";
 import { eq, and, desc, sql, type SQL } from "drizzle-orm";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminOrdersPage({
   searchParams,
 }: {
