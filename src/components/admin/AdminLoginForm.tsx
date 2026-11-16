@@ -54,12 +54,12 @@ export function AdminLoginForm() {
             </svg>
             <span>Ouverture du tableau de bord...</span>
           </div>
-          <a
+          <Link
             href="/admin"
             className="inline-block mt-4 text-xs font-bold text-black underline hover:text-gray-700"
           >
             Cliquez ici si la redirection ne démarre pas &rarr;
-          </a>
+          </Link>
         </div>
       </div>
     );
